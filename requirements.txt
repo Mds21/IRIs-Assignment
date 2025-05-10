@@ -1,0 +1,5 @@
+FastAPI
+uvicorn
+pandas
+openpyxl
+xlrd >= 2.0.1

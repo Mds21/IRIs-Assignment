@@ -1,95 +1,164 @@
-# FastAPI Excel Processor Assignment
+# Excel Table Processing API
 
 ## Overview
 
-The primary goal of this assignment is to assess your understanding of API development using FastAPI, your problem-solving skills, your coding style, and your ability to present your work clearly and professionally.
+This API provides functionality to process Excel files, extract table details, and calculate the sum of specific rows within tables. Built with **FastAPI**, it utilizes **Pandas** for Excel data processing.
 
-You are tasked with creating a FastAPI application that can read data from a given Excel sheet and expose a few endpoints to interact with this data.
+> **Base URL:** `http://localhost:9090`
 
-## Tasks
+---
 
-Your main task is to develop a FastAPI application with the following functionalities:
+## Features
 
-### 1. Excel Sheet Processing
-The application must be able to read a provided Excel sheet and parse its contents (`/Data/capbudg.xls`).
+- **List Tables:**  
+  Automatically detects and lists table names by identifying uppercase headers and validating associated content.
 
-### 2. API Endpoints
-You need to implement the following FastAPI endpoints. Please use `http://localhost:9090` as the base URL for your endpoints.
+- **Get Table Details:**  
+  Retrieves rows or columns associated with a given table name, including multiple occurrences.
 
-#### a. `GET /list_tables`
-   - **Functionality:** This endpoint should list all the table names present in the uploaded/specified Excel sheet.
-   - **Response Example:**
-     ```json
-     {
-       "tables": ["Initial Investment", "Revenue Projections", "Operating Expenses"]
-     }
-     ```
+- **Calculate Row Sum:**  
+  Calculates the sum of numeric values in a specific row across one or more occurrences of the table.
 
-#### b. `GET /get_table_details`
-   - **Parameters:**
-     - `table_name: str` (Query parameter specifying the name of the table)
-   - **Functionality:** This endpoint should return the names of the rows for the selected table. These row names are typically the values found in the first column of that table.
-   - **Example:** If the user selects the "Initial Investment" table, the API should list the first column values like so:
-     ```json
-     {
-       "table_name": "Initial Investment",
-       "row_names": [
-         "Initial Investment=",
-         "Opportunity cost (if any)=",
-         "Lifetime of the investment",
-         "Salvage Value at end of project=",
-         "Deprec. method(1:St.line;2:DDB)=",
-         "Tax Credit (if any )=",
-         "Other invest.(non-depreciable)="
-       ]
-     }
-     ```
+---
 
-#### c. `GET /row_sum`
-   - **Parameters:**
-     - `table_name: str` (Query parameter specifying the name of the table)
-     - `row_name: str` (Query parameter specifying the name of the row, which must be one of the names returned by `/get_table_details`)
-   - **Functionality:** This endpoint should calculate and return the sum of all numerical data points in the specified row of the specified table.
-   - **Example:** If the `row_name` is `"Tax Credit (if any )="` for a table where this row contains the value `10` (or `10%`), the output should be:
-     ```json
-     {
-       "table_name": "Initial Investment",
-       "row_name": "Tax Credit (if any )=",
-       "sum": 10 
-     }
-     ```
-     *(Note: You can decide whether to include units like '%' in the response or just return the numerical sum. Please clarify your approach in your documentation.)*
+## Endpoints
 
-## Evaluation Criteria
+### 1. List Tables
 
-We will be evaluating your submission based on the following:
+- **Endpoint:** `/list_tables`  
+- **Method:** `GET`  
+- **Description:** Lists all detected table names from the Excel file.  
 
-*   **Problem-Solving Skills:** Your ability to understand the requirements and implement a functional solution.
-*   **Coding Style:** Clarity, organization, and adherence to Python best practices. We expect well-structured, modular code, with docstrings, and robust error handling etc.
-*   **Presentation Style:** The quality and completeness of this `README.md` file (which you will update with your insights) and the Postman collection.
-*   **Documentation:** Ensure your code is well-documented.
+**Response Example:**
+```json
+{
+  "tables": ["INITIAL INVESTMENT", "OPERATING CASHFLOWS", "GROWTH RATES"]
+}
+```
 
-## Your Insights
+---
 
-Please complete the following sections with your thoughts on the assignment.
+### 2. Get Table Details
 
-### Potential Improvements
-*(Describe any ideas you have on how this application or assignment could be improved or extended. For example, handling different Excel formats, more advanced data operations, UI integration, etc.)*
+- **Endpoint:** `/get_table_details`  
+- **Method:** `POST`  
+- **Parameters:**  
+  - `table_name` (string): The name of the table to retrieve details for.  
 
-### Missed Edge Cases
-*(Identify any edge cases or scenarios that your current implementation might not handle or that were not explicitly covered in the requirements. For example, empty Excel files, tables with no numerical data, malformed table names, etc.)*
+- **Description:** Retrieves the rows or columns associated with the specified table.  
 
-## Testing
+**Request Example:**
+```json
+{
+  "table_name": "INITIAL INVESTMENT"
+}
+```
 
-To help us quickly test your application, please provide a Postman collection JSON.
+**Response Example:**
+```json
+{
+  "table_name": "INITIAL INVESTMENT",
+  "row_names": [
+    "Initial Investment=",
+    "Opportunity cost (if any)=",
+    "Lifetime of the investment",
+    "Salvage Value at end of project=",
+    "Deprec. method(1:St.line;2:DDB)=",
+    "Tax Credit (if any )=",
+    "Other invest.(non-depreciable)="
+  ]
+}
+```
 
-*   **Base URL:** `http://localhost:9090` and the given endpoint names.
-*   **Postman Collection:** 
+---
 
-## Deadline
+### 3. Calculate Row Sum
 
-Please submit your solution by **Saturday, May 10th, EOD**. Ensure you fill out the form provided in your email with the repository link (make sure the repository is public) and any other requested details. We plan to evaluate the submissions early Sunday morning and will schedule final interviews on the same day.
+- **Endpoint:** `/row_sum`  
+- **Method:** `POST`  
+- **Parameters:**  
+  - `table_name` (string): The name of the table containing the row.  
+  - `row_name` (string): The name of the row to calculate the sum for.  
 
-Feel free to open an issue in this repo if you have any questions. Your honesty is appreciated in this test.
+- **Description:** Calculates the sum of numeric values in the specified row for the given table. If the table name occurs multiple times, it sums the row values across all occurrences.  
 
-Good luck! We look forward to reviewing your submission. 
+**Request Example:**
+```json
+{
+  "table_name": "INITIAL INVESTMENT",
+  "row_name": "Investment"
+}
+```
+
+**Response Example:**
+```json
+{
+  "table_name": "INITIAL INVESTMENT",
+  "row_name": "Investment",
+  "sum": 50000
+}
+```
+
+---
+
+## Setup Instructions
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Mds21/IRIs-Assignment.git
+   cd IRIs-Assignment
+   ```
+
+2. **Create a virtual environment:**
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+---
+
+## Usage
+
+1. **Run the application:**
+   ```bash
+   uvicorn app.main:app --host 0.0.0.0 --port 9090 --reload
+   ```
+
+2. **Access the API:**
+   Open your browser and navigate to `http://localhost:9090/docs` to view the interactive API documentation.
+
+---
+
+## Error Handling
+
+- **File Not Found:** Returns a `404` error if the specified Excel file is not found.
+- **Table Not Found:** Returns a `404` error if the specified table name is not found in the Excel file.
+- **Row Not Found:** Returns a `404` error if the specified row name is not found in the table.
+- **Invalid Data:** Handles non-numeric values gracefully by ignoring them during calculations.
+
+---
+
+## Dependencies
+
+- **FastAPI**: For building the API.
+- **Pandas**: For data manipulation.
+- **Uvicorn**: For running the FastAPI application.
+
+---
+
+## Future Enhancements
+
+- Add support for Excel files with headers.
+- Implement advanced filtering for table and row identification.
+- Add support for handling merged cells in Excel.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
